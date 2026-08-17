@@ -1,0 +1,14 @@
+## Interface: 11200
+## Title: |cffffcc66Vanilla Achievements|r
+## Notes: Standalone personal achievements for Vanilla 1.12.1.
+## Author: Mike and Codex
+## Version: 0.8.3
+## SavedVariables: VA_DB
+Core.lua
+Catalog.lua
+ExpansionCatalog.lua
+FunCatalog.lua
+Tracking.lua
+ExpansionTracking.lua
+UI.lua
+Minimap.lua
