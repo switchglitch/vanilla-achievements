@@ -28,6 +28,8 @@ MOCK_CURSOR_Y=272
 MOCK_MAP_CONTINENT=2
 MOCK_MAP_ZONE=1
 MOCK_WESTFALL_EXPLORED=false
+MOCK_PLAYER_HEALTH=100
+MOCK_PLAYER_MAX_HEALTH=100
 
 function time() return MOCK_NOW end
 function date(formatText,timestamp) return os.date(formatText,timestamp or MOCK_NOW) end
@@ -35,6 +37,8 @@ function getglobal(name) return _G[name] end
 function UnitName(unit) return unit=="player" and "Tester" or nil end
 function UnitLevel(unit) return MOCK_LEVEL end
 function UnitClass(unit) return "Warrior","WARRIOR" end
+function UnitHealth(unit) return unit=="player" and MOCK_PLAYER_HEALTH or 0 end
+function UnitHealthMax(unit) return unit=="player" and MOCK_PLAYER_MAX_HEALTH or 0 end
 function GetCVar(name) if name=="realmName" then return "TestRealm" end return "" end
 function GetMoney() return MOCK_MONEY end
 function GetRealZoneText() return "Westfall" end
@@ -357,6 +361,27 @@ VA_DB.version="0.7.6"
 VA_DB.characters[VA:GetCharacterKey()].completed.QUEST_TRIPLE={at=MOCK_NOW}
 VA:EnsureDB()
 assert(not VA:IsComplete("QUEST_TRIPLE"),"upgrade clears legacy quest-trip false positive")
+
+VA.expSession.recentDeaths={}
+VA:EnsureDB().completed.DEATH_DOUBLE=nil
+MOCK_NOW=MOCK_NOW+20
+event="PLAYER_DEAD"; expansionEvent()
+MOCK_NOW=MOCK_NOW+120
+event="PLAYER_DEAD"; expansionEvent()
+assert(VA:IsComplete("DEATH_DOUBLE"),"two deaths within five minutes unlock Not Again")
+
+VA.expSession.recentDeaths={}
+VA:EnsureDB().completed.SURVIVE_LOW=nil
+MOCK_PLAYER_HEALTH=5
+MOCK_PLAYER_MAX_HEALTH=100
+event="PLAYER_REGEN_ENABLED"; expansionEvent()
+assert(VA:IsComplete("SURVIVE_LOW"),"low-health combat exit unlocks Saved by the Bell")
+
+VA:EnsureDB().completed.SURVIVE_LOW=nil
+MOCK_PLAYER_HEALTH=0
+MOCK_PLAYER_MAX_HEALTH=100
+event="PLAYER_REGEN_ENABLED"; expansionEvent()
+assert(not VA:IsComplete("SURVIVE_LOW"),"death does not count as a low-health escape")
 
 print("RESULT passed catalog=214 badges=ok custom_sound=ok toast_queue=ok free_launcher=ok realtime=ok bosses=ok loot=ok deaths=ok")
 `;

@@ -1,6 +1,7 @@
 -- Lightweight detectors for the expanded, single-character achievement set.
 local VA = VanillaAchievements
-VA.expSession = VA.expSession or { recentQuests={}, recentMurlocs={}, dungeonSession={}, recentRoll=nil }
+VA.expSession = VA.expSession or { recentQuests={}, recentMurlocs={}, recentDeaths={}, dungeonSession={}, recentRoll=nil }
+VA.expSession.recentDeaths = VA.expSession.recentDeaths or {}
 
 local function db() return VA:EnsureDB() end
 local function counter(key) return tonumber(db().counters[key]) or 0 end
@@ -144,15 +145,17 @@ local function HandleEvent()
         end
     elseif event=="PLAYER_DEAD" then
         VA:SetCounter("killStreak",0)
-        if VA.expSession.inCombat then VA.expSession.lastDeathAt=VA:Now() end
-        if VA.expSession.lastDeathAt and VA:Now()-VA.expSession.lastDeathAt<=300 then finish("DEATH_DOUBLE") end
+        local now=VA:Now(); local deaths=VA.expSession.recentDeaths
+        table.insert(deaths,now)
+        while table.getn(deaths)>0 and now-deaths[1]>300 do table.remove(deaths,1) end
+        if table.getn(deaths)>=2 then finish("DEATH_DOUBLE") end
         if VA.expSession.murlocTarget then finish("MURLOC_DEATH") end
         if VA.expSession.hoggerTarget then finish("DEATH_HOGGER") end
     elseif event=="PLAYER_REGEN_DISABLED" then VA.expSession.inCombat=true
     elseif event=="PLAYER_REGEN_ENABLED" then
         VA.expSession.inCombat=nil
         local hp=UnitHealth and tonumber(UnitHealth("player")) or 0; local max=UnitHealthMax and tonumber(UnitHealthMax("player")) or 0
-        if max>0 and hp/max<=0.05 then finish("SURVIVE_LOW") end
+        if max>0 and hp>0 and hp/max<=0.05 then finish("SURVIVE_LOW") end
     elseif event=="BAG_UPDATE" or event=="UNIT_INVENTORY_CHANGED" or event=="PARTY_MEMBERS_CHANGED" or event=="RAID_ROSTER_UPDATE" or event=="GUILD_ROSTER_UPDATE" or event=="PLAYER_LOGIN" then
         ScanBagsAndSocial()
         if counter("bestEquippedQuality")>=3 then finish("GEAR_RARE") end
