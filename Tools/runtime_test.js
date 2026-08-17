@@ -182,6 +182,10 @@ Fire("UPDATE_FACTION")
 assert(VA:EnsureDB().counters.bestReputationStanding==5,"friendly reputation recorded")
 assert(not VA:IsComplete("REP_HONORED"),"friendly reputation remains below Honored")
 VA:EnsureDB().completed.REP_HONORED={at=MOCK_NOW}
+MOCK_FACTIONS={}
+VA:ScanReputation(false)
+assert(VA:IsComplete("REP_HONORED"),"no reputation data does not clear a valid Honored completion")
+MOCK_FACTIONS={{name="Test Faction",standing=5}}
 Fire("UPDATE_FACTION")
 assert(not VA:IsComplete("REP_HONORED"),"legacy false Honored unlock revoked")
 MOCK_FACTIONS[1].standing=6

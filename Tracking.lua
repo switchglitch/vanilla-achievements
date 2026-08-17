@@ -146,6 +146,7 @@ end
 function VA:ScanReputation(silent)
     if not GetNumFactions or not GetFactionInfo then return end
     local total = tonumber(GetNumFactions()) or 0
+    if total <= 0 then return end
     local best = 0
     local exalted = 0
     local db = self:EnsureDB()
