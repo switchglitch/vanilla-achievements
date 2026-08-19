@@ -124,6 +124,7 @@ function Frame:SetWidth(value) self.width=value end
 function Frame:SetHeight(value) self.height=value end
 function Frame:GetWidth() return self.width end
 function Frame:GetHeight() return self.height end
+function Frame:GetTop() return self.top end
 function Frame:SetText(value) self.text=tostring(value or "") end
 function Frame:GetText() return self.text or "" end
 function Frame:SetTexture(value) self.texture=tostring(value or "") end
@@ -223,6 +224,27 @@ assert(VA.ui.scrollBar,"stylized achievement scrollbar installed")
 assert(VA.ui.scrollBar:IsVisible(),"achievement scrollbar is visible")
 assert(VA.ui.scrollThumb and VA.ui.scrollThumb:IsVisible(),"basic scrollbar thumb is visible")
 assert(VA.ui.offset==0,"achievement list starts at first row")
+VA.ui.scrollBar.top=100
+VA.ui.scrollThumb.top=100
+MOCK_CURSOR_Y=100
+VA:ScrollAchievementsFromClick(VA.ui.scrollBar,MOCK_CURSOR_Y)
+assert(VA.ui.offset==0,"scrollbar click at top keeps first row")
+MOCK_CURSOR_Y=471
+VA:ScrollAchievementsFromClick(VA.ui.scrollBar,MOCK_CURSOR_Y)
+assert(VA.ui.offset==7,"scrollbar click at bottom reaches end of page")
+VA.ui.offset=0
+VA:RefreshUI()
+MOCK_CURSOR_Y=400
+this=VA.ui.scrollThumb
+arg1="LeftButton"
+VA.ui.scrollThumb.scripts.OnMouseDown()
+MOCK_CURSOR_Y=0
+this=VA.ui.scrollThumb
+VA.ui.scrollThumb.scripts.OnUpdate()
+this=VA.ui.scrollThumb
+VA.ui.scrollThumb.scripts.OnMouseUp()
+assert(VA.ui.offset==7,"scrollbar thumb drag reaches end of page")
+assert(not VA.ui.scrollBar.dragging,"scrollbar drag stops on mouse up")
 local scrollIndex
 for scrollIndex=1,7 do VA:ScrollAchievements(-1) end
 assert(VA.ui.offset==7,"mouse-wheel reveals second half of page")

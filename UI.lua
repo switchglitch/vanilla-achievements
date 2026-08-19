@@ -100,27 +100,34 @@ function VA:ScrollAchievements(delta)
     local now = GetTime and GetTime() or nil
     if now and ui.lastScrollInput and now - ui.lastScrollInput < 0.035 then return end
     if now then ui.lastScrollInput = now end
-    local list = self:GetDisplayList()
-    local pageSize = tonumber(ui.pageSize) or 14
-    local visibleRows = table.getn(ui.rows)
-    local pageStart = math.floor((tonumber(ui.offset) or 0) / pageSize) * pageSize
-    local maximumScroll = math.min(pageSize - visibleRows,
-        math.max(0, table.getn(list) - pageStart - visibleRows))
+    local list, pageSize, visibleRows, pageStart, maximumScroll = self:GetAchievementScrollMetrics()
+    if not list then return end
     local direction = (tonumber(delta) or 0) > 0 and -1 or 1
     local scroll = math.max(0, math.min(maximumScroll, (tonumber(ui.offset) or 0) - pageStart + direction))
     ui.offset = pageStart + scroll
     self:RefreshUI()
 end
 
-function VA:ScrollAchievementsFromClick(track, cursorY)
+function VA:GetAchievementScrollMetrics()
     local ui = self.ui
-    if not ui or not track then return end
+    if not ui or not ui.rows then return nil end
     local list = self:GetDisplayList()
     local pageSize = tonumber(ui.pageSize) or 14
     local visibleRows = table.getn(ui.rows)
     local pageStart = math.floor((tonumber(ui.offset) or 0) / pageSize) * pageSize
+    local maximumPageStart = math.max(0, math.floor(math.max(0, table.getn(list) - 1) / pageSize) * pageSize)
+    pageStart = math.max(0, math.min(maximumPageStart, pageStart))
     local maximumScroll = math.min(pageSize - visibleRows,
         math.max(0, table.getn(list) - pageStart - visibleRows))
+    local scroll = math.max(0, math.min(maximumScroll, (tonumber(ui.offset) or 0) - pageStart))
+    return list, pageSize, visibleRows, pageStart, maximumScroll, scroll
+end
+
+function VA:ScrollAchievementsFromClick(track, cursorY)
+    local ui = self.ui
+    if not ui or not track then return end
+    local list, pageSize, visibleRows, pageStart, maximumScroll = self:GetAchievementScrollMetrics()
+    if not list then return end
     if maximumScroll <= 0 or not cursorY or not track.GetTop then return end
     local scale = track.GetEffectiveScale and track:GetEffectiveScale() or 1
     local top = track:GetTop()
@@ -128,22 +135,31 @@ function VA:ScrollAchievementsFromClick(track, cursorY)
     if not top or not height or height <= 0 then return end
     local position = ((cursorY / scale) - top) / height
     position = math.max(0, math.min(1, position))
-    ui.offset = pageStart + math.floor((1 - position) * maximumScroll + 0.5)
+    ui.offset = pageStart + math.floor(position * maximumScroll + 0.5)
     self:RefreshUI()
+end
+
+function VA:BeginAchievementScrollDrag(track, cursorY)
+    local ui = self.ui
+    if not ui or not track or not cursorY then return end
+    local list, pageSize, visibleRows, pageStart, maximumScroll, scroll = self:GetAchievementScrollMetrics()
+    if not list or maximumScroll <= 0 then return end
+    track.dragging = true
+    track.dragStartY = cursorY
+    track.dragStartScroll = scroll
+    track.dragPageStart = pageStart
+    track.dragMaximumScroll = maximumScroll
 end
 
 function VA:ScrollAchievementsFromDrag(track, cursorY)
     local ui = self.ui
     if not ui or not track or not cursorY or not track.dragStartY then return end
-    local list = self:GetDisplayList()
-    local pageSize = tonumber(ui.pageSize) or 14
-    local visibleRows = table.getn(ui.rows)
-    local pageStart = math.floor((tonumber(ui.offset) or 0) / pageSize) * pageSize
-    local maximumScroll = math.min(pageSize - visibleRows,
-        math.max(0, table.getn(list) - pageStart - visibleRows))
+    local list, pageSize, visibleRows, pageStart, maximumScroll = self:GetAchievementScrollMetrics()
+    if not list then return end
     if maximumScroll <= 0 then return end
     local scale = track.GetEffectiveScale and track:GetEffectiveScale() or 1
-    local travel = (track:GetHeight() or 371) - 48
+    local thumbHeight = (ui.scrollThumb and ui.scrollThumb.GetHeight and ui.scrollThumb:GetHeight()) or 48
+    local travel = (track:GetHeight() or 371) - thumbHeight
     if travel <= 0 then return end
     local delta = (cursorY - track.dragStartY) / scale
     local scroll = (track.dragStartScroll or 0) - (delta / travel) * maximumScroll
@@ -200,7 +216,9 @@ function VA:RefreshUI()
     local scroll = math.max(0, math.min(maximumScroll, (tonumber(ui.offset) or 0) - pageStart))
     ui.offset = pageStart + scroll
     if ui.scrollThumb then
-        local travel = 323
+        local trackHeight = (ui.scrollBar and ui.scrollBar.GetHeight and ui.scrollBar:GetHeight()) or 371
+        local thumbHeight = ui.scrollThumb:GetHeight() or 48
+        local travel = math.max(0, trackHeight - thumbHeight)
         local thumbOffset = 0
         if maximumScroll > 0 then thumbOffset = travel * scroll / maximumScroll end
         ui.scrollThumb:ClearAllPoints()
@@ -564,6 +582,8 @@ function VA:InstallUI()
     scrollTrack:SetPoint("TOPLEFT", frame, "TOPLEFT", 682, -88)
     scrollTrack:SetFrameStrata("DIALOG")
     scrollTrack:SetFrameLevel(20)
+    scrollTrack:EnableMouse(true)
+    scrollTrack:EnableMouseWheel(true)
     scrollTrack:SetBackdrop({
         bgFile="Interface\\Tooltips\\UI-Tooltip-Background",
         edgeFile="Interface\\Tooltips\\UI-Tooltip-Border",
@@ -572,6 +592,20 @@ function VA:InstallUI()
     })
     scrollTrack:SetBackdropColor(0.14,0.09,0.025,1)
     scrollTrack:SetBackdropBorderColor(0.90,0.58,0.12,1)
+    scrollTrack:SetScript("OnMouseDown", function()
+        if arg1 ~= "LeftButton" then return end
+        local cursorX, cursorY = GetCursorPosition()
+        if cursorY then VA:ScrollAchievementsFromClick(this, cursorY) end
+    end)
+    scrollTrack:SetScript("OnMouseUp", function()
+        this.dragging = nil
+    end)
+    scrollTrack:SetScript("OnHide", function()
+        this.dragging = nil
+    end)
+    scrollTrack:SetScript("OnMouseWheel", function()
+        VA:ScrollAchievements(arg1)
+    end)
     scrollTrack:Show()
     ui.scrollBar = scrollTrack
     local scrollThumb = CreateFrame("Frame", "VanillaAchievementsScrollThumb", frame)
@@ -580,6 +614,8 @@ function VA:InstallUI()
     scrollThumb:SetFrameStrata("DIALOG")
     scrollThumb:SetFrameLevel(21)
     scrollThumb:SetPoint("TOPLEFT", frame, "TOPLEFT", 684, -88)
+    scrollThumb:EnableMouse(true)
+    scrollThumb:EnableMouseWheel(true)
     scrollThumb:SetBackdrop({
         bgFile="Interface\\Tooltips\\UI-Tooltip-Background",
         edgeFile="Interface\\Tooltips\\UI-Tooltip-Border",
@@ -588,6 +624,30 @@ function VA:InstallUI()
     })
     scrollThumb:SetBackdropColor(0.78,0.46,0.08,1)
     scrollThumb:SetBackdropBorderColor(1,0.88,0.32,1)
+    scrollThumb.scrollBar = scrollTrack
+    scrollThumb:SetScript("OnMouseDown", function()
+        if arg1 ~= "LeftButton" then return end
+        local cursorX, cursorY = GetCursorPosition()
+        if cursorY then VA:BeginAchievementScrollDrag(this.scrollBar, cursorY) end
+    end)
+    scrollThumb:SetScript("OnMouseUp", function()
+        if this.scrollBar then this.scrollBar.dragging = nil end
+    end)
+    scrollThumb:SetScript("OnHide", function()
+        if this.scrollBar then this.scrollBar.dragging = nil end
+    end)
+    scrollThumb:SetScript("OnMouseWheel", function()
+        VA:ScrollAchievements(arg1)
+    end)
+    scrollThumb:SetScript("OnUpdate", function()
+        if not this.scrollBar or not this.scrollBar.dragging then return end
+        if IsMouseButtonDown and not IsMouseButtonDown("LeftButton") then
+            this.scrollBar.dragging = nil
+            return
+        end
+        local cursorX, cursorY = GetCursorPosition()
+        if cursorY then VA:ScrollAchievementsFromDrag(this.scrollBar, cursorY) end
+    end)
     scrollThumb:Show()
     ui.scrollThumb = scrollThumb
 
