@@ -30,6 +30,9 @@ MOCK_MAP_ZONE=1
 MOCK_WESTFALL_EXPLORED=false
 MOCK_PLAYER_HEALTH=100
 MOCK_PLAYER_MAX_HEALTH=100
+MOCK_PARTY_UNIT_EXISTS={}
+MOCK_PARTY_UNIT_HEALTHS={}
+MOCK_PARTY_UNIT_MAX_HEALTHS={}
 
 function time() return MOCK_NOW end
 function date(formatText,timestamp) return os.date(formatText,timestamp or MOCK_NOW) end
@@ -37,8 +40,18 @@ function getglobal(name) return _G[name] end
 function UnitName(unit) return unit=="player" and "Tester" or nil end
 function UnitLevel(unit) return MOCK_LEVEL end
 function UnitClass(unit) return "Warrior","WARRIOR" end
-function UnitHealth(unit) return unit=="player" and MOCK_PLAYER_HEALTH or 0 end
-function UnitHealthMax(unit) return unit=="player" and MOCK_PLAYER_MAX_HEALTH or 0 end
+function UnitExists(unit)
+    if unit=="player" then return true end
+    return MOCK_PARTY_UNIT_EXISTS[unit] == true
+end
+function UnitHealth(unit)
+    if unit=="player" then return MOCK_PLAYER_HEALTH end
+    return tonumber(MOCK_PARTY_UNIT_HEALTHS[unit]) or 0
+end
+function UnitHealthMax(unit)
+    if unit=="player" then return MOCK_PLAYER_MAX_HEALTH end
+    return tonumber(MOCK_PARTY_UNIT_MAX_HEALTHS[unit]) or 0
+end
 function GetCVar(name) if name=="realmName" then return "TestRealm" end return "" end
 function GetMoney() return MOCK_MONEY end
 function GetRealZoneText() return "Westfall" end
@@ -342,6 +355,21 @@ assert(VA:IsComplete("RAID_MC"),"Ragnaros clear")
 assert(VA:Count(VA:GetSet("raidClears"))==1,"one raid clear")
 assert(string.find(MOCK_SOUND_FILES[table.getn(MOCK_SOUND_FILES)] or "","anime-wow.mp3",1,true),"custom raid sound")
 assert(table.getn(MOCK_CHAT_SEND)==2 and MOCK_CHAT_SEND[2].chatType=="GUILD","guild toggle enables guild announcement")
+
+MOCK_CHAT_SEND={}
+VA:DismissToast()
+MOCK_NOW=MOCK_NOW+121
+MOCK_PARTY_MEMBERS=4
+MOCK_PARTY_UNIT_EXISTS={party1=true,party2=true,party3=true,party4=true}
+MOCK_PARTY_UNIT_HEALTHS={party1=100,party2=100,party3=100,party4=100}
+MOCK_PARTY_UNIT_MAX_HEALTHS={party1=100,party2=100,party3=100,party4=100}
+VA:EnsureDB().completed.DUN_FULL_PARTY=nil
+Fire("CHAT_MSG_COMBAT_HOSTILE_DEATH","Mutanus the Devourer has been defeated!")
+assert(VA:IsComplete("DUN_WC"),"Mutanus clear")
+assert(VA:IsComplete("DUN_FULL_PARTY"),"full party dungeon bonus")
+assert(VA:Count(VA:GetSet("dungeonClears"))==2,"second dungeon clear")
+assert(table.getn(MOCK_CHAT_SEND)>=0,"full party clear processed")
+VA:DismissToast()
 
 Fire("CHAT_MSG_LOOT","You receive loot: |cffa335ee|Hitem:18832:0:0:0|h[Brutality Blade]|h|r.")
 assert(VA:IsComplete("LOOT_EPIC"),"epic personal loot")

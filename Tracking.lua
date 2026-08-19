@@ -235,16 +235,94 @@ local function DeathName(message)
     end
     local _, _, fallback = string.find(message, "^(.+) dies%.$")
     if not fallback then _, _, fallback = string.find(message, "^(.+) is slain") end
+    if not fallback then _, _, fallback = string.find(message, "^(.+) has been slain") end
+    if not fallback then _, _, fallback = string.find(message, "^(.+) has died") end
+    if not fallback then _, _, fallback = string.find(message, "^(.+) was slain") end
+    if not fallback then _, _, fallback = string.find(message, "^(.+) was defeated") end
+    if not fallback then _, _, fallback = string.find(message, "^(.+) has been defeated") end
+    if not fallback then _, _, fallback = string.find(message, "^(.+) is defeated") end
+    if not fallback then _, _, fallback = string.find(message, "^(.+) has been destroyed") end
+    if not fallback then _, _, fallback = string.find(message, "^(.+) is destroyed") end
+    if not fallback then _, _, fallback = string.find(message, "^(.+) falls") end
+    if not fallback then _, _, fallback = string.find(message, "^(.+) has fallen") end
+    if not fallback then _, _, fallback = string.find(message, "^(.+) collapses") end
     return fallback
 end
 
-function VA:HandleBossDeath(message)
+local function IsBossDeathText(message)
+    local lower = string.lower(tostring(message or ""))
+    local cues = {
+        " dies",
+        " is slain",
+        " has been slain",
+        " has died",
+        " was slain",
+        " was defeated",
+        " has been defeated",
+        " is defeated",
+        " has been destroyed",
+        " is destroyed",
+        " falls",
+        " has fallen",
+        " collapses",
+    }
+    local index
+    for index=1,table.getn(cues) do
+        if string.find(lower, cues[index], 1, true) then return true end
+    end
+    return false
+end
+
+local function UnitIsAlive(unit)
+    if not unit then return false end
+    if UnitExists and not UnitExists(unit) then return false end
+    local health = tonumber(UnitHealth and UnitHealth(unit) or 0) or 0
+    local maxHealth = tonumber(UnitHealthMax and UnitHealthMax(unit) or 0) or 0
+    return health > 0 and maxHealth > 0
+end
+
+local function HasLivingFullParty()
+    local partyMembers = tonumber(GetNumPartyMembers and GetNumPartyMembers() or 0) or 0
+    if partyMembers < 4 then return false end
+    return UnitIsAlive("player")
+        and UnitIsAlive("party1")
+        and UnitIsAlive("party2")
+        and UnitIsAlive("party3")
+        and UnitIsAlive("party4")
+end
+
+local function ResolveBossAchievement(self, message)
     local name = DeathName(message)
+    local id = name and self.bossAchievements[self:Normalize(name)] or nil
+    if id then return name, id end
+    if not name and not IsBossDeathText(message) then return nil, nil end
+
+    local normalizedMessage = self:Normalize(message)
+    local bestAlias, bestId
+    local alias, bossId
+    for alias, bossId in pairs(self.bossAchievements) do
+        if type(alias) == "string" and alias ~= "" and string.find(normalizedMessage, alias, 1, true) then
+            if not bestAlias or string.len(alias) > string.len(bestAlias) then
+                bestAlias = alias
+                bestId = bossId
+            end
+        end
+    end
+    if bestId then return bestAlias, bestId end
+    return nil, nil
+end
+
+local function MaybeCompleteDungeonPartyBonus(self, def, silent)
+    if not def or def.tag ~= "DUNGEON" then return end
+    if HasLivingFullParty() then self:Complete("DUN_FULL_PARTY", silent) end
+end
+
+function VA:HandleBossDeath(message)
+    local name, id = ResolveBossAchievement(self, message)
     if not name then return false end
     if VA_DB and VA_DB.settings and VA_DB.settings.debug then
         self:Print("Combat death detected: " .. tostring(name))
     end
-    local id = self.bossAchievements[self:Normalize(name)]
     if not id then return false end
 
     self.runtime = self.runtime or {}
@@ -259,6 +337,7 @@ function VA:HandleBossDeath(message)
     elseif def and def.tag == "RAID" then self:AddSetValue("raidClears", id, 50)
     elseif def and def.tag == "WORLD" then self:AddSetValue("worldBosses", id, 50) end
     self:Complete(id, false)
+    MaybeCompleteDungeonPartyBonus(self, def, false)
     self:EvaluateInstanceMetas(false)
     return true
 end
@@ -405,6 +484,7 @@ local events = {
     "PLAYER_LOGIN","PLAYER_ENTERING_WORLD","PLAYER_LEVEL_UP","PLAYER_MONEY",
     "ZONE_CHANGED_NEW_AREA","MINIMAP_ZONE_CHANGED","SKILL_LINES_CHANGED","UPDATE_FACTION",
     "PLAYER_EQUIPMENT_CHANGED","UNIT_INVENTORY_CHANGED","BAG_UPDATE","CHAT_MSG_COMBAT_HOSTILE_DEATH",
+    "CHAT_MSG_MONSTER_SAY","CHAT_MSG_MONSTER_YELL","CHAT_MSG_MONSTER_EMOTE",
     "CHAT_MSG_LOOT","PLAYER_DEAD","CHAT_MSG_SYSTEM","CHAT_MSG_COMBAT_SELF_HITS",
     "CHAT_MSG_SPELL_SELF_DAMAGE","TIME_PLAYED_MSG","PLAYER_XP_UPDATE","UNIT_LEVEL",
     "PLAYER_ALIVE","PLAYER_UNGHOST","CHARACTER_POINTS_CHANGED",
@@ -447,7 +527,8 @@ eventFrame:SetScript("OnEvent", function()
         VA:ScanEquipment(false)
     elseif event == "BAG_UPDATE" then
         VA:ScanBags(false)
-    elseif event == "CHAT_MSG_COMBAT_HOSTILE_DEATH" then
+    elseif event == "CHAT_MSG_COMBAT_HOSTILE_DEATH" or event == "CHAT_MSG_MONSTER_SAY"
+        or event == "CHAT_MSG_MONSTER_YELL" or event == "CHAT_MSG_MONSTER_EMOTE" then
         VA:HandleBossDeath(arg1)
     elseif event == "CHAT_MSG_LOOT" then
         VA:HandleLoot(arg1)
