@@ -4,6 +4,12 @@ A standalone personal achievement addon for the World of Warcraft 1.12.1 client.
 It does not inspect or store the player's guild and does not require other players
 to run the addon.
 
+## Repository
+
+- Canonical git remote: `https://github.com/switchglitch/vanilla-achievements.git`
+- Local workspace root: `C:\Users\Mike\Documents\Codex\Vanilla Achievements`
+- If a new Codex chat starts from scratch, open this folder first. It is the repo root and the correct place for all addon edits, tests, and commits.
+
 ## Install
 
 1. Copy the `VanillaAchievements` folder into `Interface/AddOns`.

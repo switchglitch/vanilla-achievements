@@ -35,7 +35,8 @@ function VA:PositionMinimapButton()
 
     local width = tonumber(UIParent:GetWidth()) or 1024
     local height = tonumber(UIParent:GetHeight()) or 768
-    local edge = 16
+    -- Keep the launcher inside the visible screen, but do not add an extra inset.
+    local edge = 0
     local x = Clamp(tonumber(VA_DB.settings.launcherX) or 0, (-width/2)+edge, (width/2)-edge)
     local y = Clamp(tonumber(VA_DB.settings.launcherY) or 0, (-height/2)+edge, (height/2)-edge)
     VA_DB.settings.launcherX = x
