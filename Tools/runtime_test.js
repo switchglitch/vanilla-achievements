@@ -217,8 +217,8 @@ assert(VanillaAchievementsMinimapButton:GetWidth()==30 and VanillaAchievementsMi
 assert(VanillaAchievementsMinimapButton.badge==nil,"no square count badge")
 local uiCenterX,uiCenterY=UIParent:GetCenter()
 local mapCenterX,mapCenterY=Minimap:GetCenter()
-local migratedExpectedX=(mapCenterX-uiCenterX)+(tonumber(VA_DB.settings.minimapX) or -78)
-local migratedExpectedY=(mapCenterY-uiCenterY)+(tonumber(VA_DB.settings.minimapY) or -78)
+local migratedExpectedX=mapCenterX+(tonumber(VA_DB.settings.minimapX) or -78)
+local migratedExpectedY=mapCenterY+(tonumber(VA_DB.settings.minimapY) or -78)
 assert(math.abs(VA_DB.settings.launcherX-migratedExpectedX)<0.01 and math.abs(VA_DB.settings.launcherY-migratedExpectedY)<0.01,
     "old minimap position migrated "..tostring(VA_DB.settings.launcherX)..","..tostring(VA_DB.settings.launcherY)..
     " expected "..tostring(migratedExpectedX)..","..tostring(migratedExpectedY)..
@@ -309,8 +309,8 @@ this=button
 button.scripts.OnDragStart()
 button.scripts.OnUpdate()
 button.scripts.OnDragStop()
-assert(math.abs(VA_DB.settings.launcherX)<0.01,"free horizontal drag saved")
-assert(math.abs(VA_DB.settings.launcherY-90)<0.01,"free vertical drag saved")
+assert(math.abs(VA_DB.settings.launcherX-500)<0.01,"free horizontal drag saved")
+assert(math.abs(VA_DB.settings.launcherY-440)<0.01,"free vertical drag saved")
 local savedX=VA_DB.settings.launcherX
 local savedY=VA_DB.settings.launcherY
 VA:PositionMinimapButton()

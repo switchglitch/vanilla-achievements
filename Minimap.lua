@@ -1,10 +1,6 @@
 local VA = VanillaAchievements
 
-local FREE_POSITION_VERSION = 1
-
-local function Clamp(value, minimum, maximum)
-    return math.max(minimum, math.min(maximum, value))
-end
+local FREE_POSITION_VERSION = 2
 
 function VA:EnsureLauncherPosition()
     self:EnsureDB()
@@ -17,9 +13,12 @@ function VA:EnsureLauncherPosition()
     local uiX, uiY, mapX, mapY
     if UIParent then uiX, uiY = UIParent:GetCenter() end
     if Minimap then mapX, mapY = Minimap:GetCenter() end
-    if uiX and uiY and mapX and mapY then
-        settings.launcherX = (mapX - uiX) + (tonumber(settings.minimapX) or -78)
-        settings.launcherY = (mapY - uiY) + (tonumber(settings.minimapY) or -78)
+    if tonumber(settings.launcherPositionVersion) == 1 and tonumber(settings.launcherX) and tonumber(settings.launcherY) and uiX and uiY then
+        settings.launcherX = (tonumber(settings.launcherX) or 0) + uiX
+        settings.launcherY = (tonumber(settings.launcherY) or 0) + uiY
+    elseif uiX and uiY and mapX and mapY then
+        settings.launcherX = mapX + (tonumber(settings.minimapX) or -78)
+        settings.launcherY = mapY + (tonumber(settings.minimapY) or -78)
     else
         local width = UIParent and tonumber(UIParent:GetWidth()) or 1024
         local height = UIParent and tonumber(UIParent:GetHeight()) or 768
@@ -33,30 +32,29 @@ function VA:PositionMinimapButton()
     if not self.ui or not self.ui.minimapButton or not UIParent then return end
     self:EnsureLauncherPosition()
 
-    local width = tonumber(UIParent:GetWidth()) or 1024
-    local height = tonumber(UIParent:GetHeight()) or 768
-    -- Keep the launcher inside the visible screen, but do not add an extra inset.
-    local edge = 0
-    local x = Clamp(tonumber(VA_DB.settings.launcherX) or 0, (-width/2)+edge, (width/2)-edge)
-    local y = Clamp(tonumber(VA_DB.settings.launcherY) or 0, (-height/2)+edge, (height/2)-edge)
-    VA_DB.settings.launcherX = x
-    VA_DB.settings.launcherY = y
+    local x = tonumber(VA_DB.settings.launcherX)
+    local y = tonumber(VA_DB.settings.launcherY)
+    if x == nil or y == nil then
+        x = 407
+        y = 279
+        VA_DB.settings.launcherX = x
+        VA_DB.settings.launcherY = y
+    end
 
     self.ui.minimapButton:ClearAllPoints()
-    self.ui.minimapButton:SetPoint("CENTER", UIParent, "CENTER", x, y)
+    self.ui.minimapButton:SetPoint("CENTER", UIParent, "BOTTOMLEFT", x, y)
 end
 
 function VA:UpdateMinimapDragPosition()
     if not self.ui or not self.ui.minimapButton or not UIParent or not GetCursorPosition then return false end
     local cursorX, cursorY = GetCursorPosition()
-    local uiX, uiY = UIParent:GetCenter()
-    if not cursorX or not cursorY or not uiX or not uiY then return false end
+    if not cursorX or not cursorY then return false end
 
     local scale = 1
     if UIParent.GetEffectiveScale then scale = tonumber(UIParent:GetEffectiveScale()) or 1 end
     if scale <= 0 then scale = 1 end
-    VA_DB.settings.launcherX = (cursorX / scale) - uiX
-    VA_DB.settings.launcherY = (cursorY / scale) - uiY
+    VA_DB.settings.launcherX = cursorX / scale
+    VA_DB.settings.launcherY = cursorY / scale
     VA_DB.settings.launcherPositionVersion = FREE_POSITION_VERSION
     self:PositionMinimapButton()
     return true
@@ -103,7 +101,7 @@ function VA:InstallMinimapButton()
     button:SetScript("OnDragStart", function()
         if not IsShiftKeyDown or IsShiftKeyDown() then
             this.dragging = true
-            VA:UpdateMinimapDragPosition()
+            this:StartMoving()
         end
     end)
 
@@ -113,6 +111,7 @@ function VA:InstallMinimapButton()
 
     button:SetScript("OnDragStop", function()
         if not this.dragging then return end
+        this:StopMovingOrSizing()
         VA:UpdateMinimapDragPosition()
         this.dragging = nil
         VA:PositionMinimapButton()
