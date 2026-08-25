@@ -371,6 +371,13 @@ assert(VA:Count(VA:GetSet("dungeonClears"))==2,"second dungeon clear")
 assert(table.getn(MOCK_CHAT_SEND)>=0,"full party clear processed")
 VA:DismissToast()
 
+MOCK_NOW=MOCK_NOW+121
+MOCK_PARTY_MEMBERS=0
+Fire("CHAT_MSG_COMBAT_HOSTILE_DEATH","Arugal dies.")
+assert(VA:IsComplete("DUN_SFK"),"Arugal clear")
+assert(VA:Count(VA:GetSet("dungeonClears"))==3,"SFK counts as a dungeon clear")
+VA:DismissToast()
+
 Fire("CHAT_MSG_LOOT","You receive loot: |cffa335ee|Hitem:18832:0:0:0|h[Brutality Blade]|h|r.")
 assert(VA:IsComplete("LOOT_EPIC"),"epic personal loot")
 assert(not VA:IsComplete("LOOT_LEGENDARY"),"legendary should remain locked")

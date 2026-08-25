@@ -295,6 +295,20 @@ local function ResolveBossAchievement(self, message)
     local name = DeathName(message)
     local id = name and self.bossAchievements[self:Normalize(name)] or nil
     if id then return name, id end
+    if name then
+        local normalizedName = self:Normalize(name)
+        local alias, bossId
+        -- Some realms report only the boss surname (for example, "Arugal").
+        -- Match that meaningful name against the full catalog alias too.
+        if string.len(normalizedName) >= 4 then
+            for alias, bossId in pairs(self.bossAchievements) do
+                if type(alias) == "string"
+                    and string.find(alias, normalizedName, 1, true) then
+                    return name, bossId
+                end
+            end
+        end
+    end
     if not name and not IsBossDeathText(message) then return nil, nil end
 
     local normalizedMessage = self:Normalize(message)
