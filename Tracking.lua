@@ -233,7 +233,8 @@ local function DeathName(message)
             if name and name ~= "" then return name end
         end
     end
-    local _, _, fallback = string.find(message, "^(.+) dies%.$")
+    -- Combat text may append an experience/reward clause after "dies".
+    local _, _, fallback = string.find(message, "^(.+) dies")
     if not fallback then _, _, fallback = string.find(message, "^(.+) is slain") end
     if not fallback then _, _, fallback = string.find(message, "^(.+) has been slain") end
     if not fallback then _, _, fallback = string.find(message, "^(.+) has died") end
