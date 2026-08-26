@@ -386,6 +386,14 @@ assert(VA:IsComplete("DUN_SFK"),"Arugal combat text with experience suffix clear
 assert(VA:Count(VA:GetSet("dungeonClears"))==3,"SFK suffix message counts as a dungeon clear")
 VA:DismissToast()
 
+VA:EnsureDB().completed.DUN_WC=nil
+VA:GetSet("dungeonClears").DUN_WC=nil
+MOCK_NOW=MOCK_NOW+121
+Fire("CHAT_MSG_COMBAT_HOSTILE_DEATH","You have slain Mutanus the Devourer!")
+assert(VA:IsComplete("DUN_WC"),"Mutanus player-kill message clear")
+assert(VA:Count(VA:GetSet("dungeonClears"))==3,"Mutanus player-kill message counts as a dungeon clear")
+VA:DismissToast()
+
 Fire("CHAT_MSG_LOOT","You receive loot: |cffa335ee|Hitem:18832:0:0:0|h[Brutality Blade]|h|r.")
 assert(VA:IsComplete("LOOT_EPIC"),"epic personal loot")
 assert(not VA:IsComplete("LOOT_LEGENDARY"),"legendary should remain locked")

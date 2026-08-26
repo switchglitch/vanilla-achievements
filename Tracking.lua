@@ -235,6 +235,8 @@ local function DeathName(message)
     end
     -- Combat text may append an experience/reward clause after "dies".
     local _, _, fallback = string.find(message, "^(.+) dies")
+    if not fallback then _, _, fallback = string.find(message, "^You have slain (.+)!?") end
+    if not fallback then _, _, fallback = string.find(message, "^You have killed (.+)!?") end
     if not fallback then _, _, fallback = string.find(message, "^(.+) is slain") end
     if not fallback then _, _, fallback = string.find(message, "^(.+) has been slain") end
     if not fallback then _, _, fallback = string.find(message, "^(.+) has died") end
@@ -254,6 +256,8 @@ local function IsBossDeathText(message)
     local lower = string.lower(tostring(message or ""))
     local cues = {
         " dies",
+        "you have slain ",
+        "you have killed ",
         " is slain",
         " has been slain",
         " has died",
