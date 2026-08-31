@@ -43,7 +43,7 @@ local DUNGEONS = {
     {"DUN_RFC","Ragefire Chasm","Defeat Bazzalan in Ragefire Chasm.",{"Bazzalan"}},
     {"DUN_WC","Wailing Caverns","Defeat Mutanus the Devourer in Wailing Caverns.",{"Mutanus the Devourer","Mutanus"}},
     {"DUN_DM","The Deadmines","Defeat Edwin VanCleef in The Deadmines.",{"Edwin VanCleef","VanCleef"}},
-    {"DUN_SFK","Shadowfang Keep","Defeat Archmage Arugal in Shadowfang Keep.",{"Archmage Arugal","Arugal"}},
+    {"DUN_SFK","Shadowfang Keep","Defeat Archmage Arugal in Shadowfang Keep.",{"Archmage Arugal"}},
     {"DUN_STOCKADE","The Stockade","Defeat Bazil Thredd in The Stockade.",{"Bazil Thredd"}},
     {"DUN_BFD","Blackfathom Deeps","Defeat Aku'mai in Blackfathom Deeps.",{"Aku'mai","Aku mai"}},
     {"DUN_GNOMER","Gnomeregan","Defeat Mekgineer Thermaplugg in Gnomeregan.",{"Mekgineer Thermaplugg"}},

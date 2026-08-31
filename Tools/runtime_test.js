@@ -402,6 +402,14 @@ assert(VA:IsComplete("DUN_WC"),"Mutanus slain prefix with trailing text clear")
 assert(VA:Count(VA:GetSet("dungeonClears"))==3,"Mutanus slain prefix counts as a dungeon clear")
 VA:DismissToast()
 
+VA:EnsureDB().completed.DUN_SFK=nil
+VA:GetSet("dungeonClears").DUN_SFK=nil
+MOCK_NOW=MOCK_NOW+121
+Fire("CHAT_MSG_COMBAT_HOSTILE_DEATH","Son of Arugal dies, you gain 213 experience")
+assert(not VA:IsComplete("DUN_SFK"),"Son of Arugal is not the SFK final boss")
+assert(not VA:GetSet("dungeonClears").DUN_SFK,"Son of Arugal does not count as an SFK clear")
+VA:DismissToast()
+
 Fire("CHAT_MSG_LOOT","You receive loot: |cffa335ee|Hitem:18832:0:0:0|h[Brutality Blade]|h|r.")
 assert(VA:IsComplete("LOOT_EPIC"),"epic personal loot")
 assert(not VA:IsComplete("LOOT_LEGENDARY"),"legendary should remain locked")
