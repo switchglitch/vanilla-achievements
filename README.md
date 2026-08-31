@@ -22,16 +22,15 @@ to run the addon.
 
 Progress is stored per `character@realm` in `VA_DB`.
 
-Version 0.3.2 corrects the reputation threshold: Friendly is standing 5,
-while Honored is standing 6. A stale Honored unlock from an older version is
-removed until a real Honored reputation is detected.
+Version 0.8.5 includes the current achievement catalog, private-server-friendly
+event fallbacks, and the free-position minimap launcher.
 
 Achievements update during play. Normal Vanilla events trigger immediate checks,
 and a lightweight one-second/three-second fallback scanner covers private
 servers that omit those events. State-based level, money, zone, equipment, bag,
 skill, reputation, and play-time milestones therefore do not wait for relogging.
 
-## Included in version 0.2
+## Included
 
 - Level milestones at 5, 10, 20, 30, 40, 50, 59, and 60.
 - 26 dungeon or dungeon-wing clears triggered by the final boss.
@@ -48,13 +47,11 @@ skill, reputation, and play-time milestones therefore do not wait for relogging.
   badges and a cracked level 59 badge.
 - A user-provided `anime-wow.mp3` sound for every achievement toast.
 
-The catalog contains 155 achievements.
+The catalog contains 222 achievements.
 
-Exploration includes 40 full-zone achievements: 18 for Kalimdor and 22 for the
-Eastern Kingdoms, plus continent and Azeroth-wide metas. Vanilla map fog
-overlays are scanned silently on login for historical credit and approximately
-every ten seconds in the current zone for live completion. Cities are not part
-of the full-zone lists.
+Exploration milestones count distinct zones visited, with additional travel
+and zone-change achievements. Historical map-fog discovery is intentionally not
+used because the 1.12.1 API does not expose it reliably across private servers.
 
 Left-click the minimap button to open the browser, right-click it to rescan the
 character, and Shift-drag it to move it. Use `/vach minimap` to hide or restore
@@ -113,4 +110,8 @@ does not require a particular group size, guild, class, faction, or addon user.
 
 Use `/vach debug` before a final boss to print the exact hostile-death name seen
 by the tracker. Turn it off afterward because ordinary hostile deaths are also
-shown.
+shown. This command is optional and does not affect normal achievement tracking.
+
+For guild distribution, copy the complete `VanillaAchievements` folder into
+`Interface/AddOns`. The `Tools` directory is only for development validation;
+it is not required by the game.

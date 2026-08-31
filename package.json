@@ -1,10 +1,9 @@
 {
   "name": "vanilla-achievements-tests",
-  "version": "0.5.3",
+  "version": "0.8.5",
   "private": true,
   "scripts": {
     "validate": "python Tools/validate.py",
-    "parse": "node ../OrderOfTheLionGM-main/Tools/parse_all.js .",
     "test": "node Tools/runtime_test.js ."
   },
   "devDependencies": {
