@@ -6,12 +6,9 @@ to run the addon.
 
 ## Repository
 
-- Canonical git remote: `https://github.com/switchglitch/vanilla-achievements.git`
-- Source repo root: `C:\Users\Mike\Documents\Codex\Vanilla Achievements`
-- Live addon folder: `C:\Games\Octowow\Interface\AddOns\VanillaAchievements`
-- Workflow guide: `CODEx_WORKFLOW.md`
-- If a new Codex chat starts from scratch, open the repo root above first. That is where all addon edits, tests, and commits should happen.
-- Before every push, copy the updated addon files into the live addon folder above so the installed copy stays in sync with the repo.
+The source code and release history are maintained in this GitHub repository.
+For installation, use the instructions below; no development tools or private
+maintenance files are required to run the addon.
 
 ## Install
 
