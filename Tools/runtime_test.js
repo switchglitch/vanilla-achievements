@@ -24,6 +24,7 @@ MOCK_PARTY_MEMBERS=0
 MOCK_RAID_MEMBERS=0
 MOCK_GUILD_NAME=nil
 MOCK_TARGET_NAME=nil
+MOCK_QUEST_TITLE=""
 MOCK_CURSOR_X=422
 MOCK_CURSOR_Y=272
 MOCK_MAP_CONTINENT=2
@@ -39,6 +40,7 @@ function time() return MOCK_NOW end
 function date(formatText,timestamp) return os.date(formatText,timestamp or MOCK_NOW) end
 function getglobal(name) return _G[name] end
 function UnitName(unit) return unit=="player" and "Tester" or (unit=="target" and MOCK_TARGET_NAME or nil) end
+function GetTitleText() return MOCK_QUEST_TITLE end
 function UnitLevel(unit) return MOCK_LEVEL end
 function UnitClass(unit) return "Warrior","WARRIOR" end
 function UnitExists(unit)
@@ -446,15 +448,26 @@ assert(VA:IsComplete("PLAYED_24H"),"live scanner advances played time")
 local expansionEvent=VanillaAchievementsExpansionEvents and VanillaAchievementsExpansionEvents.scripts.OnEvent
 assert(expansionEvent,"expanded event handler")
 VA.expSession.recentQuests={}
+VA.expSession.lastQuestCompleteTitle=nil
+VA.expSession.lastQuestCompleteAt=nil
 VA:EnsureDB().counters.quests=0
 VA:EnsureDB().completed.QUEST_TRIPLE=nil
 event="QUEST_FINISHED"
 expansionEvent()
 assert(VA:EnsureDB().counters.quests==0,"quest window close does not count as completion")
+MOCK_QUEST_TITLE="The Same Quest"
+event="QUEST_COMPLETE"; expansionEvent()
+event="QUEST_COMPLETE"; expansionEvent()
+assert(VA:EnsureDB().counters.quests==1,"repeated quest completion event counts once")
+VA.expSession.recentQuests={}
+VA:EnsureDB().counters.quests=0
+MOCK_QUEST_TITLE="First Quest"
 MOCK_NOW=MOCK_NOW+10
 event="QUEST_COMPLETE"; expansionEvent()
+MOCK_QUEST_TITLE="Second Quest"
 MOCK_NOW=MOCK_NOW+10
 event="QUEST_COMPLETE"; expansionEvent()
+MOCK_QUEST_TITLE="Third Quest"
 MOCK_NOW=MOCK_NOW+10
 event="QUEST_COMPLETE"; expansionEvent()
 assert(VA:EnsureDB().counters.quests==3,"quest completion counter counts completed quests")

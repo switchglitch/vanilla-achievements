@@ -4,7 +4,7 @@
 VanillaAchievements = VanillaAchievements or {}
 local VA = VanillaAchievements
 
-VA.version = "0.8.8"
+VA.version = "0.8.9"
 VA.schema = 1
 VA.catalog = {}
 VA.byId = {}
@@ -88,11 +88,11 @@ function VA:EnsureDB()
     if type(db.sets) ~= "table" then db.sets = {} end
     if type(db.dates) ~= "table" then db.dates = {} end
     if type(db.stats) ~= "table" then db.stats = {} end
-    -- QUEST_TRIPLE was driven by the overly broad QUEST_FINISHED event in
-    -- builds before 0.7.7, so any prior completion is not trustworthy. Clear
-    -- that one record once when upgrading off those buggy builds.
+    -- QUEST_TRIPLE was driven by overly broad or repeated quest events in
+    -- builds before 0.7.7 and in 0.8.8, so prior completions are not
+    -- trustworthy. Clear that one record once when upgrading off those builds.
     if previousVersion ~= self.version
-        and (previousVersion == "0.7.5" or previousVersion == "0.7.6") then
+        and (previousVersion == "0.7.5" or previousVersion == "0.7.6" or previousVersion == "0.8.8") then
         db.completed.QUEST_TRIPLE = nil
     end
     return db

@@ -81,6 +81,20 @@ local function CurrentTargetName()
     if UnitName then return UnitName("target") end
 end
 
+local function CurrentQuestTitle()
+    if GetTitleText then
+        local title=GetTitleText()
+        if title and title~="" then return title end
+    end
+    if GetQuestLogSelection and GetQuestLogTitle then
+        local index=GetQuestLogSelection()
+        if index then
+            local title=GetQuestLogTitle(index)
+            if title and title~="" then return title end
+        end
+    end
+end
+
 local function HandleKill(message)
     message=string.lower(tostring(message or ""))
     if not string.find(message,"you have slain",1,true) then return end
@@ -154,8 +168,18 @@ local function HandleEvent()
     -- event emitted immediately before the reward is accepted, so use that
     -- signal for both the quest counter and the three-in-one-minute secret.
     if event=="QUEST_COMPLETE" then
+        local now=VA:Now()
+        local title=CurrentQuestTitle()
+        local normalizedTitle=title and VA:Normalize(title) or ""
+        -- Some private clients repeat QUEST_COMPLETE while the reward window
+        -- is open. A title lets us ignore that duplicate without blocking
+        -- three different quests completed within the one-minute window.
+        if normalizedTitle~="" and normalizedTitle==VA.expSession.lastQuestCompleteTitle
+            and now-(tonumber(VA.expSession.lastQuestCompleteAt) or 0)<=5 then return end
+        VA.expSession.lastQuestCompleteTitle=normalizedTitle
+        VA.expSession.lastQuestCompleteAt=now
         local q=add("quests"); threshold("quests",q,QUEST_ROWS)
-        local now=VA:Now(); local times=VA.expSession.recentQuests; table.insert(times,now)
+        local times=VA.expSession.recentQuests; table.insert(times,now)
         while table.getn(times)>0 and now-times[1]>60 do table.remove(times,1) end
         if table.getn(times)>=3 then finish("QUEST_TRIPLE") end
     elseif event=="CHAT_MSG_COMBAT_HOSTILE_DEATH" then HandleKill(arg1)

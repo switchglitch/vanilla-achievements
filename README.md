@@ -19,8 +19,9 @@ maintenance files are required to run the addon.
 
 Progress is stored per `character@realm` in `VA_DB`.
 
-Version 0.8.8 includes the current achievement catalog, private-server-friendly
-event fallbacks, and the free-position minimap launcher.
+Version 0.8.9 includes the current achievement catalog, private-server-friendly
+event fallbacks, the free-position minimap launcher, and duplicate quest-event
+protection for the One Trip, Three Rewards achievement.
 
 Achievements update during play. Normal Vanilla events trigger immediate checks,
 and a lightweight one-second/three-second fallback scanner covers private
