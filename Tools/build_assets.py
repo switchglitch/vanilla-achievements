@@ -183,7 +183,7 @@ def icon_only(achievement_id: str) -> bool:
         "QUEST_", "KILL_", "CRIT_", "DAMAGE_", "MURLOC_", "TYPE_", "CRITTER_", "BOSS_",
         "EMOTE_", "ROLL_", "DUN_", "RAID_", "LOOT_", "GEAR_", "BAG_", "SOCIAL_", "META_",
     )
-    return achievement_id in ("BAGS_FULL", "KILL_001", "MONEY_ZERO", "DEATH_HOGGER", "DEATH_FIRE", "DEATH_DROWN", "DEATH_DOUBLE", "DEATH_DURABILITY", "DEATH_GHOST_5M", "EXPLORE_RUN_FOREST") or achievement_id.startswith(prefixes)
+    return achievement_id in ("BAGS_FULL", "KILL_001", "MONEY_ZERO", "DEATH_HOGGER", "DEATH_FIRE", "DEATH_DROWN", "DEATH_DOUBLE", "DEATH_DURABILITY", "DEATH_GHOST_5M", "EXPLORE_RUN_FOREST", "PEST_CONTROL_08") or achievement_id.startswith(prefixes)
 
 
 def draw_symbol(draw: ImageDraw.ImageDraw, achievement_id: str) -> None:
@@ -223,6 +223,29 @@ def draw_symbol(draw: ImageDraw.ImageDraw, achievement_id: str) -> None:
         draw.ellipse((20, 25, 44, 39), fill=(77, 151, 177, 255), outline=dark)
         draw.polygon([(20, 31), (14, 25), (14, 38)], fill=(52, 120, 150, 255), outline=dark)
         draw.ellipse((35, 28, 38, 31), fill=light); draw.ellipse((36, 29, 37, 30), fill=dark); return
+    if achievement_id == "PEST_CONTROL_08":
+        # Beetle badge: a clearly readable pest silhouette with shell, legs, and antennae.
+        body = (118, 67, 29, 255)
+        shell = (184, 101, 35, 255)
+        eye = (224, 62, 38, 255)
+        draw.line([(29, 21), (22, 14)], fill=gold, width=2)
+        draw.line([(35, 21), (42, 14)], fill=gold, width=2)
+        draw.ellipse((20, 12, 24, 16), fill=gold, outline=dark)
+        draw.ellipse((40, 12, 44, 16), fill=gold, outline=dark)
+        draw.ellipse((25, 24, 39, 45), fill=body, outline=dark, width=2)
+        draw.ellipse((27, 18, 37, 29), fill=(62, 37, 20, 255), outline=dark, width=2)
+        draw.ellipse((28, 21, 31, 24), fill=eye, outline=dark)
+        draw.ellipse((33, 21, 36, 24), fill=eye, outline=dark)
+        draw.ellipse((25, 25, 32, 43), fill=shell, outline=dark)
+        draw.ellipse((32, 25, 39, 43), fill=shell, outline=dark)
+        draw.line([(32, 25), (32, 43)], fill=light, width=2)
+        draw.line([(26, 29), (17, 25)], fill=dark, width=2)
+        draw.line([(26, 35), (16, 35)], fill=dark, width=2)
+        draw.line([(27, 40), (19, 46)], fill=dark, width=2)
+        draw.line([(38, 29), (47, 25)], fill=dark, width=2)
+        draw.line([(38, 35), (48, 35)], fill=dark, width=2)
+        draw.line([(37, 40), (45, 46)], fill=dark, width=2)
+        return
     if achievement_id.startswith("TYPE_") or achievement_id.startswith("CRITTER_"):
         draw.ellipse((24, 22, 40, 38), fill=(145, 91, 45, 255), outline=dark)
         draw.ellipse((21, 18, 27, 25), fill=(145, 91, 45, 255), outline=dark); draw.ellipse((37, 18, 43, 25), fill=(145, 91, 45, 255), outline=dark)

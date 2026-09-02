@@ -19,7 +19,7 @@ maintenance files are required to run the addon.
 
 Progress is stored per `character@realm` in `VA_DB`.
 
-Version 0.8.7 includes the current achievement catalog, private-server-friendly
+Version 0.8.8 includes the current achievement catalog, private-server-friendly
 event fallbacks, and the free-position minimap launcher.
 
 Achievements update during play. Normal Vanilla events trigger immediate checks,
