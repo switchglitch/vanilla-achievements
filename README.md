@@ -46,7 +46,11 @@ skill, reputation, and play-time milestones therefore do not wait for relogging.
   badges and a cracked level 59 badge.
 - A user-provided `anime-wow.mp3` sound for every achievement toast.
 
-The catalog contains 222 achievements.
+The catalog contains 224 achievements. The Sword of 1000 Truths meta-achievement
+requires every other catalog achievement, including the critter-love and pest
+collections added in version 0.8.7 and later.
+
+When adding achievements, update this total and the catalog validation count.
 
 Exploration milestones count distinct zones visited, with additional travel
 and zone-change achievements. Historical map-fog discovery is intentionally not

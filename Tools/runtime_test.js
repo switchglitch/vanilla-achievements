@@ -500,6 +500,22 @@ end
 assert(VA:IsComplete("PEST_CONTROL_08"),"eight classic pests slain")
 assert(VA:Count(VA:GetSet("pestKills"))==8,"pest set tracks unique names")
 
+-- The final meta must include newly added achievements in its all-catalog requirement.
+local db=VA:EnsureDB()
+db.completed={}
+for i=1,table.getn(VA.catalog) do
+    local id=VA.catalog[i].id
+    if id~="META_SWORD_1000" and id~="CRITTER_LOVE_08" and id~="PEST_CONTROL_08" then
+        db.completed[id]={at=1}
+    end
+end
+VA:EvaluateMetaAchievements(true)
+assert(not VA:IsComplete("META_SWORD_1000"),"Sword waits for new catalog achievements")
+db.completed.CRITTER_LOVE_08={at=1}
+db.completed.PEST_CONTROL_08={at=1}
+VA:EvaluateMetaAchievements(true)
+assert(VA:IsComplete("META_SWORD_1000"),"Sword includes new catalog achievements")
+
 print("RESULT passed catalog=216 badges=ok custom_sound=ok toast_queue=ok free_launcher=ok realtime=ok bosses=ok loot=ok deaths=ok critters=ok pests=ok")
 `;
 
