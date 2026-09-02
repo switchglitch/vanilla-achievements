@@ -19,7 +19,7 @@ maintenance files are required to run the addon.
 
 Progress is stored per `character@realm` in `VA_DB`.
 
-Version 0.8.6 includes the current achievement catalog, private-server-friendly
+Version 0.8.7 includes the current achievement catalog, private-server-friendly
 event fallbacks, and the free-position minimap launcher.
 
 Achievements update during play. Normal Vanilla events trigger immediate checks,
@@ -36,6 +36,8 @@ skill, reputation, and play-time milestones therefore do not wait for relogging.
 - Class-at-60, weapon skill, secondary profession, and reputation milestones.
 - Exploration, profession, reputation, wealth, loot, equipment, play-time,
   death, secret, and total-achievement milestones.
+- A compact eight-critter `/love` collection and an eight-pest kill collection,
+  using classic creature names supported by the 1.12.1 client.
 - A category browser, completion dates, filtering, progress, chat notices,
   and sequential achievement popups.
 - A compact round `VA` launcher that can be Shift-dragged anywhere on screen.

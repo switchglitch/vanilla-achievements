@@ -23,6 +23,7 @@ MOCK_FACTIONS={}
 MOCK_PARTY_MEMBERS=0
 MOCK_RAID_MEMBERS=0
 MOCK_GUILD_NAME=nil
+MOCK_TARGET_NAME=nil
 MOCK_CURSOR_X=422
 MOCK_CURSOR_Y=272
 MOCK_MAP_CONTINENT=2
@@ -37,7 +38,7 @@ MOCK_PARTY_UNIT_MAX_HEALTHS={}
 function time() return MOCK_NOW end
 function date(formatText,timestamp) return os.date(formatText,timestamp or MOCK_NOW) end
 function getglobal(name) return _G[name] end
-function UnitName(unit) return unit=="player" and "Tester" or nil end
+function UnitName(unit) return unit=="player" and "Tester" or (unit=="target" and MOCK_TARGET_NAME or nil) end
 function UnitLevel(unit) return MOCK_LEVEL end
 function UnitClass(unit) return "Warrior","WARRIOR" end
 function UnitExists(unit)
@@ -175,11 +176,21 @@ function Fire(testEvent,a1,a2,a3)
     assert(handler,"event handler missing")
     handler()
 end
+
+function FireExpansion(testEvent,a1,a2,a3)
+    event=testEvent
+    arg1=a1
+    arg2=a2
+    arg3=a3
+    local handler=VanillaAchievementsExpansionEvents and VanillaAchievementsExpansionEvents.scripts.OnEvent
+    assert(handler,"expansion event handler missing")
+    handler()
+end
 `;
 
 const tests = String.raw`
 local VA=VanillaAchievements
-assert(table.getn(VA.catalog)==214,"catalog count")
+assert(table.getn(VA.catalog)==216,"catalog count")
 assert(VA.byId["EXPLORE_RUN_FOREST"],"Run, Forrest, Run achievement registered")
 VA:EnsureDB().dates.toastReplayVersion="0.2.6"
 
@@ -474,7 +485,22 @@ MOCK_PLAYER_MAX_HEALTH=100
 event="PLAYER_REGEN_ENABLED"; expansionEvent()
 assert(not VA:IsComplete("SURVIVE_LOW"),"death does not count as a low-health escape")
 
-print("RESULT passed catalog=214 badges=ok custom_sound=ok toast_queue=ok free_launcher=ok realtime=ok bosses=ok loot=ok deaths=ok")
+local lovedNames={"Chicken","Cat","Cow","Deer","Fawn","Rabbit","Squirrel","Sheep"}
+for i=1,table.getn(lovedNames) do
+    MOCK_TARGET_NAME=lovedNames[i]
+    FireExpansion("CHAT_MSG_TEXT_EMOTE","You love "..lovedNames[i]..".")
+end
+assert(VA:IsComplete("CRITTER_LOVE_08"),"eight classic critters loved")
+assert(VA:Count(VA:GetSet("lovedCritters"))==8,"loved critter set tracks unique names")
+
+local pestNames={"Adder","Larva","Maggot","Mouse","Rat","Roach","Scorpion","Spider"}
+for i=1,table.getn(pestNames) do
+    FireExpansion("CHAT_MSG_COMBAT_HOSTILE_DEATH","You have slain "..pestNames[i]..", you gain experience")
+end
+assert(VA:IsComplete("PEST_CONTROL_08"),"eight classic pests slain")
+assert(VA:Count(VA:GetSet("pestKills"))==8,"pest set tracks unique names")
+
+print("RESULT passed catalog=216 badges=ok custom_sound=ok toast_queue=ok free_launcher=ok realtime=ok bosses=ok loot=ok deaths=ok critters=ok pests=ok")
 `;
 
 const L = lauxlib.luaL_newstate();

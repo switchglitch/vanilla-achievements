@@ -4,7 +4,7 @@
 VanillaAchievements = VanillaAchievements or {}
 local VA = VanillaAchievements
 
-VA.version = "0.8.6"
+VA.version = "0.8.7"
 VA.schema = 1
 VA.catalog = {}
 VA.byId = {}

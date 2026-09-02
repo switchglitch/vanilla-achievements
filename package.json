@@ -1,6 +1,6 @@
 {
   "name": "vanilla-achievements-tests",
-  "version": "0.8.6",
+  "version": "0.8.7",
   "private": true,
   "scripts": {
     "validate": "python Tools/validate.py",

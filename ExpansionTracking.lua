@@ -22,6 +22,27 @@ end
 local QUEST_ROWS={{1,"QUEST_001"},{5,"QUEST_005"},{10,"QUEST_010"},{25,"QUEST_025"},{50,"QUEST_050"},{75,"QUEST_075"},{100,"QUEST_100"},{250,"QUEST_250"}}
 local KILL_ROWS={{1,"KILL_001"},{10,"KILL_010"},{50,"KILL_050"},{100,"KILL_100"},{250,"KILL_250"},{500,"KILL_500"},{1000,"KILL_1000"}}
 local MURLOC_ROWS={{10,"MURLOC_010"},{25,"MURLOC_025"},{50,"MURLOC_050"},{100,"MURLOC_100"}}
+local LOVED_CRITTERS={"chicken","cat","cow","deer","fawn","rabbit","squirrel","sheep"}
+local PESTS={"adder","larva","maggot","mouse","rat","roach","scorpion","spider","water snake"}
+
+local function ExactName(name, names)
+    local normalized=VA:Normalize(name)
+    for i=1,table.getn(names) do
+        if normalized==VA:Normalize(names[i]) then return names[i] end
+    end
+end
+
+local function PrefixName(name, names)
+    local normalized=VA:Normalize(name)
+    local match
+    for i=1,table.getn(names) do
+        local candidate=VA:Normalize(names[i])
+        if string.find(normalized,candidate,1,true)==1 and (not match or string.len(candidate)>string.len(VA:Normalize(match))) then
+            match=names[i]
+        end
+    end
+    return match
+end
 
 local function EvaluateMetaExtras()
     local secretCount, deathCount, ordinary = 0, 0, {}
@@ -94,6 +115,11 @@ local function HandleKill(message)
     if string.find(name,"bellygrub",1,true) then finish("BOSS_BELLYGRUB") end
     if string.find(name,"critter",1,true) then
         local ck=add("critterKills"); finish("CRITTER_001"); if ck>=25 then finish("CRITTER_025") end
+    end
+    local pest=PrefixName(name,PESTS)
+    if pest then
+        local pc=setValue("pestKills",pest,table.getn(PESTS))
+        if pc and VA:Count(VA:GetSet("pestKills"))>=8 then finish("PEST_CONTROL_08") end
     end
     local damage=damageAmount(message)
     if damage and damage>counter("bestDamage") then VA:SetCounter("bestDamage",damage); if damage>=500 then finish("DAMAGE_500") end; if damage>=1000 then finish("DAMAGE_1000") end end
@@ -184,6 +210,13 @@ local function HandleEvent()
             if VA.expSession.auctionAt and now-VA.expSession.auctionAt<=10 then finish("EMOTE_AUCTION") end
             if MurlocName(target) then finish("MURLOC_DANCE") end
         elseif string.find(text,"kisses",1,true) and MurlocName(target) then VA.expSession.murlocKissName=target; VA.expSession.murlocKissAt=now end
+        if string.find(text,"love",1,true) then
+            local critter=ExactName(target,LOVED_CRITTERS)
+            if critter then
+                setValue("lovedCritters",critter,table.getn(LOVED_CRITTERS))
+                if VA:Count(VA:GetSet("lovedCritters"))>=8 then finish("CRITTER_LOVE_08") end
+            end
+        end
     elseif event=="MERCHANT_SHOW" then VA.expSession.merchantMoney=GetMoney and GetMoney() or 0
     end
 end

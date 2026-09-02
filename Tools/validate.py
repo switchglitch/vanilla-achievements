@@ -7,7 +7,7 @@ from pathlib import Path
 
 
 ROOT = Path(sys.argv[1]).resolve() if len(sys.argv) > 1 else Path(__file__).resolve().parents[1]
-EXPECTED_CATALOG = 222
+EXPECTED_CATALOG = 224
 
 
 def check(name: str, condition: bool, detail: str = "") -> bool:

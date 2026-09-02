@@ -88,8 +88,8 @@ def achievement_ids() -> list[str]:
         if value not in seen:
             seen.add(value)
             values.append(value)
-    if len(values) != 222:
-        raise RuntimeError(f"Expected 222 achievement IDs, found {len(values)}")
+    if len(values) != 224:
+        raise RuntimeError(f"Expected 224 achievement IDs, found {len(values)}")
     return values
 
 

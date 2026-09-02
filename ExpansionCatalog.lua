@@ -49,6 +49,8 @@ Add({id="TYPE_ELEMENTAL_025",category="GENERAL",name="Elementarily Speaking",des
 Add({id="TYPE_DRAGONKIN_025",category="GENERAL",name="Dragon Your Feet",description="Defeat 25 Dragonkin.",progress="dragonkinKills",required=25})
 Add({id="CRITTER_001",category="SECRETS",name="You Monster",description="Defeat one Critter.",progress="critterKills",required=1,secret=true})
 Add({id="CRITTER_025",category="GENERAL",name="Critterical Mass",description="Defeat 25 Critters.",progress="critterKills",required=25})
+Add({id="CRITTER_LOVE_08",category="EXPLORATION",name="To All The Squirrels I've Loved Before",description="Use /love on eight different classic critters.",progress="lovedCritters",progressType="SET",required=8})
+Add({id="PEST_CONTROL_08",category="GENERAL",name="Pest Control",description="Slay eight different classic pests.",progress="pestKills",progressType="SET",required=8})
 Add({id="BOSS_HOGGER",category="GENERAL",name="Hogger? I Barely Know Her",description="Defeat Hogger.",progress="namedKills",required=1})
 Add({id="BOSS_MORLADIM",category="GENERAL",name="Grave Mistake",description="Defeat Mor'Ladim.",progress="namedKills",required=1})
 Add({id="BOSS_BANGALASH",category="GENERAL",name="Cat Scratch Fever",description="Defeat King Bangalash.",progress="namedKills",required=1})
