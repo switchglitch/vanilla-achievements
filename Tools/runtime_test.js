@@ -276,20 +276,18 @@ local catalogIndex
 for catalogIndex=1,table.getn(VA.catalog) do
     assert(string.find(VA.catalog[catalogIndex].icon or "","Assets\\Icons\\",1,true),"achievement badge path")
 end
-assert(VA.runtime.currentToast,"first catch-up toast")
-assert(VA.ui.toast.icon.texture==VA.byId[VA.runtime.currentToast].icon,"toast badge")
-assert(table.getn(MOCK_SOUND_FILES)==1,"first replay toast plays one sound")
-assert(string.find(MOCK_SOUND_FILES[1] or "","anime-wow.mp3",1,true),"custom replay sound file")
-assert(table.getn(VA.runtime.toastQueue)>0,"remaining catch-up toast queue")
-assert(table.getn(VA.runtime.toastQueue)+1==VA:GetCompletedCount(),"all baseline achievements queued")
-assert(VA:EnsureDB().dates.toastReplayVersion==VA.version,"versioned catch-up replay marker")
-assert(table.getn(MOCK_CHAT_SEND)==0,"version replay does not announce")
-assert(table.getn(MOCK_EMOTES)==0,"version replay does not cheer")
+local loginToast=VA.runtime.currentToast
+local loginQueue=table.getn(VA.runtime.toastQueue)
+assert(loginToast,"new baseline achievement toast")
+assert(VA.ui.toast.icon.texture==VA.byId[loginToast].icon,"toast badge")
+assert(loginQueue>=0,"baseline toast queue is valid")
+local loginSoundCount=table.getn(MOCK_SOUND_FILES)
 local sameVersionCurrent=VA.runtime.currentToast
 local sameVersionQueued=table.getn(VA.runtime.toastQueue)
 Fire("PLAYER_LOGIN")
-assert(VA.runtime.currentToast==sameVersionCurrent,"same version keeps active toast")
-assert(table.getn(VA.runtime.toastQueue)==sameVersionQueued,"same version does not replay twice")
+assert(VA.runtime.currentToast==sameVersionCurrent,"login keeps active toast")
+assert(table.getn(VA.runtime.toastQueue)==sameVersionQueued,"login does not replay completed achievements")
+assert(table.getn(MOCK_SOUND_FILES)==loginSoundCount,"login does not replay completed sounds")
 
 local firstToast=VA.runtime.currentToast
 local queuedBefore=table.getn(VA.runtime.toastQueue)

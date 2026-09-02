@@ -79,10 +79,11 @@ compatibility. Browser buttons glow gold while hovered.
 
 Existing characters receive achievements supported by current character state
 on their first login. Each completed achievement is shown in sequence rather
-than being overwritten by the next popup. This catch-up sequence runs once per
-character after each addon version update. Use `/vach replay` to queue it again
-manually. Historical dungeon kills, raid kills, loot, deaths, and zone visits
-cannot be reconstructed by the 1.12.1 API.
+than being overwritten by the next popup. This initial catch-up runs once per
+character; upgrading the addon does not replay already completed achievements.
+Use `/vach replay` to queue completed popups manually. Historical dungeon
+kills, raid kills, loot, deaths, and zone visits cannot be reconstructed by the
+1.12.1 API.
 
 ## Boss aliases and private-server changes
 

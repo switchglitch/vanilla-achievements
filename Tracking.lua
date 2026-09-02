@@ -514,16 +514,17 @@ for eventIndex=1,table.getn(events) do pcall(eventFrame.RegisterEvent, eventFram
 eventFrame:SetScript("OnEvent", function()
     if event == "PLAYER_LOGIN" then
         local db = VA:EnsureDB()
-        local replayCompleted = tostring(db.dates.toastReplayVersion or "") ~= tostring(VA.version or "")
+        local firstLogin = not db.dates.baselineComplete
         if VA.InstallUI then VA:InstallUI() end
         VA:RemoveRetiredZoneExploration()
-        VA:CheckAllCurrentState(replayCompleted)
+        -- Catch up a brand-new character once. Later versions only refresh
+        -- state silently and never replay the completed-achievement history.
+        VA:CheckAllCurrentState(true)
         db.dates.baselineComplete = true
-        if replayCompleted then
-            db.dates.toastReplayVersion = VA.version
-            if VA.QueueCompletedAchievementToasts then VA:QueueCompletedAchievementToasts() end
+        if firstLogin and VA.QueueCompletedAchievementToasts then
+            VA:QueueCompletedAchievementToasts()
         end
-        VA.runtime.suppressNextTimePlayedAnnouncement = replayCompleted
+        VA.runtime.suppressNextTimePlayedAnnouncement = nil
         VA.runtime.playedTrackingReady = true
         VA.runtime.playedElapsed = 0
         if RequestTimePlayed then pcall(RequestTimePlayed) end
