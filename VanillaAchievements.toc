@@ -2,7 +2,7 @@
 ## Title: |cffffcc66Vanilla Achievements|r
 ## Notes: Standalone personal achievements for Vanilla 1.12.1.
 ## Author: Mike and Codex
-## Version: 0.8.5
+## Version: 0.8.6
 ## SavedVariables: VA_DB
 Core.lua
 Catalog.lua

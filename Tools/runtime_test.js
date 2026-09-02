@@ -212,7 +212,7 @@ assert(not VA.ScanAllZoneExploration and not VA.ScanCurrentZoneExploration,"full
 assert(SLASH_VANILLAACHIEVEMENTS3=="/va","/va alias")
 assert(VanillaAchievementsMinimapButton,"minimap button")
 assert(VanillaAchievementsMinimapButton.icon.texture=="Interface\\AddOns\\VanillaAchievements\\Assets\\Icons\\VA_BADGE","minimap badge")
-assert(VanillaAchievementsMinimapButton:GetParent()==UIParent,"launcher is screen-relative")
+assert(VanillaAchievementsMinimapButton:GetParent()==Minimap,"launcher is discoverable as a minimap child")
 assert(VanillaAchievementsMinimapButton:GetWidth()==30 and VanillaAchievementsMinimapButton:GetHeight()==30,"compact launcher size")
 assert(VanillaAchievementsMinimapButton.badge==nil,"no square count badge")
 local uiCenterX,uiCenterY=UIParent:GetCenter()

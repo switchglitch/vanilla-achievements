@@ -73,7 +73,9 @@ function VA:InstallMinimapButton()
     if self.ui.minimapButton then return end
     self:EnsureDB()
 
-    local button = CreateFrame("Button", "VanillaAchievementsMinimapButton", UIParent)
+    -- Start under Minimap so PFUI's addon-button panel can discover and manage it.
+    -- The saved position may still anchor the button anywhere on UIParent.
+    local button = CreateFrame("Button", "VanillaAchievementsMinimapButton", Minimap or UIParent)
     button:SetWidth(30)
     button:SetHeight(30)
     button:SetFrameStrata("HIGH")
