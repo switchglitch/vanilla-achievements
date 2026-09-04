@@ -4,6 +4,11 @@ local function SetButtonLabel(button, text)
     if button and button.label then button.label:SetText(text or "") end
 end
 
+local function IsSettingEnabled(key)
+    if key == "announceGuild" then return VA:IsGuildAnnouncementsEnabled() end
+    return VA_DB.settings[key] ~= false
+end
+
 local function MakeButton(parent, text, width, height)
     local button = CreateFrame("Button", nil, parent)
     button:SetWidth(width)
@@ -43,7 +48,7 @@ function VA:RefreshSettingButtons()
     if not buttons or not VA_DB or not VA_DB.settings then return end
     local key, button, enabled
     for key, button in pairs(buttons) do
-        enabled = VA_DB.settings[key] ~= false
+        enabled = IsSettingEnabled(key)
         SetButtonLabel(button, tostring(button.settingLabel) .. ": " .. (enabled and "On" or "Off"))
         if enabled then
             button:SetBackdropBorderColor(0.35,0.85,0.42,1)
@@ -502,7 +507,11 @@ function VA:InstallUI()
         button.settingKey = settingRow[1]
         button.settingLabel = settingRow[2]
         button:SetScript("OnClick", function()
-            VA_DB.settings[this.settingKey] = not VA_DB.settings[this.settingKey]
+            if this.settingKey == "announceGuild" then
+                VA:SetGuildAnnouncementsEnabled(not VA:IsGuildAnnouncementsEnabled())
+            else
+                VA_DB.settings[this.settingKey] = not VA_DB.settings[this.settingKey]
+            end
             VA:RefreshUI()
         end)
         ui.settingButtons[settingRow[1]] = button
@@ -772,16 +781,17 @@ function VA:InstallUI()
             VA_DB.settings.announceEmote = not VA_DB.settings.announceEmote
             VA:Print("Nearby achievement announcements " .. (VA_DB.settings.announceEmote and "enabled." or "disabled."))
         elseif message == "social" then
-            local enabled = not (VA_DB.settings.announceParty or VA_DB.settings.announceGuild)
+            local enabled = not (VA_DB.settings.announceParty or VA:IsGuildAnnouncementsEnabled())
             VA_DB.settings.announceParty = enabled
-            VA_DB.settings.announceGuild = enabled
+            VA:SetGuildAnnouncementsEnabled(enabled)
             VA:Print("Party and guild achievement announcements " .. (enabled and "enabled." or "disabled."))
         elseif message == "party" then
             VA_DB.settings.announceParty = not VA_DB.settings.announceParty
             VA:Print("Party achievement announcements " .. (VA_DB.settings.announceParty and "enabled." or "disabled."))
         elseif message == "guild" then
-            VA_DB.settings.announceGuild = not VA_DB.settings.announceGuild
-            VA:Print("Guild achievement announcements " .. (VA_DB.settings.announceGuild and "enabled." or "disabled."))
+            local enabled = not VA:IsGuildAnnouncementsEnabled()
+            VA:SetGuildAnnouncementsEnabled(enabled)
+            VA:Print("Guild achievement announcements " .. (enabled and "enabled." or "disabled."))
         elseif message == "cheer" then
             VA_DB.settings.cheerOnUnlock = not VA_DB.settings.cheerOnUnlock
             VA:Print("Physical cheer on unlock " .. (VA_DB.settings.cheerOnUnlock and "enabled." or "disabled."))

@@ -238,7 +238,8 @@ assert(math.abs(VA_DB.settings.launcherX-migratedExpectedX)<0.01 and math.abs(VA
     " centers "..tostring(uiCenterX)..","..tostring(uiCenterY).."/"..tostring(mapCenterX)..","..tostring(mapCenterY))
 assert(VA.ui.settingButtons and VA.ui.settingButtons.cheerOnUnlock,"front-end cheer setting")
 assert(VA.ui.settingButtons.announceEmote and VA.ui.settingButtons.announceParty and VA.ui.settingButtons.announceGuild and VA.ui.settingButtons.sounds,"front-end announcement and sound settings")
-assert(VA_DB.settings.announceGuild==false,"guild announcements default off")
+assert(VA:EnsureDB().settings.announceGuild==false,"guild announcements default off per character")
+assert(VA_DB.settings.announceGuild==nil,"guild announcement is not stored account-wide")
 VA_DB.settings.category="SETTINGS"
 VA:RefreshUI()
 assert(VA.ui.settingsPanel:IsVisible() and not VA.ui.rows[1]:IsVisible(),"settings tab replaces achievement list")
@@ -342,6 +343,7 @@ VA.runtime.toastHideAt=nil
 VA.ui.toast:Hide()
 MOCK_PARTY_MEMBERS=1
 MOCK_GUILD_NAME="Test Guild"
+VA:SetGuildAnnouncementsEnabled(false)
 Fire("CHAT_MSG_COMBAT_HOSTILE_DEATH","Edwin VanCleef dies.")
 assert(VA:IsComplete("DUN_DM"),"VanCleef clear")
 assert(VA:Count(VA:GetSet("dungeonClears"))==1,"one dungeon clear")
@@ -354,7 +356,7 @@ assert(MOCK_CHAT_SEND[2].chatType=="PARTY","announcement uses party chat")
 assert(table.getn(MOCK_EMOTES)==0,"physical cheer defaults off")
 MOCK_CHAT_SEND={}
 VA_DB.settings.announceParty=false
-VA_DB.settings.announceGuild=true
+VA:SetGuildAnnouncementsEnabled(true)
 Fire("CHAT_MSG_COMBAT_HOSTILE_DEATH","Edwin VanCleef dies.")
 assert(VA:Count(VA:GetSet("dungeonClears"))==1,"boss dedupe")
 assert(table.getn(MOCK_CHAT_SEND)==0,"duplicate boss does not announce")

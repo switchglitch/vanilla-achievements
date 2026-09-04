@@ -4,7 +4,7 @@
 VanillaAchievements = VanillaAchievements or {}
 local VA = VanillaAchievements
 
-VA.version = "0.8.9"
+VA.version = "0.9.0"
 VA.schema = 1
 VA.catalog = {}
 VA.byId = {}
@@ -88,6 +88,10 @@ function VA:EnsureDB()
     if type(db.sets) ~= "table" then db.sets = {} end
     if type(db.dates) ~= "table" then db.dates = {} end
     if type(db.stats) ~= "table" then db.stats = {} end
+    if type(db.settings) ~= "table" then db.settings = {} end
+    if db.settings.announceGuild == nil then db.settings.announceGuild = false end
+    -- Guild announcements are character-specific; ignore any legacy account value.
+    VA_DB.settings.announceGuild = nil
     -- QUEST_TRIPLE was driven by overly broad or repeated quest events in
     -- builds before 0.7.7 and in 0.8.8, so prior completions are not
     -- trustworthy. Clear that one record once when upgrading off those builds.
@@ -96,6 +100,16 @@ function VA:EnsureDB()
         db.completed.QUEST_TRIPLE = nil
     end
     return db
+end
+
+function VA:IsGuildAnnouncementsEnabled()
+    local db = self:EnsureDB()
+    return db.settings.announceGuild == true
+end
+
+function VA:SetGuildAnnouncementsEnabled(enabled)
+    local db = self:EnsureDB()
+    db.settings.announceGuild = enabled == true
 end
 
 function VA:AddAchievement(def)
@@ -207,7 +221,8 @@ function VA:ProcessAchievementAnnouncements()
         name = string.sub(name, 1, 100)
         pcall(SendChatMessage, " has unlocked achievement \"" .. name .. "\"", "EMOTE")
     end
-    if (VA_DB.settings.announceParty or VA_DB.settings.announceGuild) and SendChatMessage then
+    local guildAnnouncements = self:IsGuildAnnouncementsEnabled()
+    if (VA_DB.settings.announceParty or guildAnnouncements) and SendChatMessage then
         local name = tostring(def and def.name or "Achievement")
         name = string.gsub(name, "[\r\n]", " ")
         name = string.sub(name, 1, 100)
@@ -218,7 +233,7 @@ function VA:ProcessAchievementAnnouncements()
         if VA_DB.settings.announceParty and GetNumRaidMembers and (tonumber(GetNumRaidMembers()) or 0) > 0 then
             pcall(SendChatMessage, message, "RAID")
         end
-        if VA_DB.settings.announceGuild and IsInGuild and IsInGuild() then
+        if guildAnnouncements and IsInGuild and IsInGuild() then
             pcall(SendChatMessage, message, "GUILD")
         end
     end
@@ -228,7 +243,7 @@ end
 function VA:QueueAchievementAnnouncement(def)
     if not def then return end
     if VA_DB.settings.announceEmote == false and VA_DB.settings.announceParty == false
-        and VA_DB.settings.announceGuild == false
+        and not self:IsGuildAnnouncementsEnabled()
         and VA_DB.settings.cheerOnUnlock == false then return end
     self.runtime = self.runtime or {}
     self.runtime.announcementQueue = self.runtime.announcementQueue or {}

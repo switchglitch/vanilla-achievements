@@ -19,7 +19,7 @@ maintenance files are required to run the addon.
 
 Progress is stored per `character@realm` in `VA_DB`.
 
-Version 0.8.9 includes the current achievement catalog, private-server-friendly
+Version 0.9.0 includes the current achievement catalog, private-server-friendly
 event fallbacks, the free-position minimap launcher, and duplicate quest-event
 protection for the One Trip, Three Rewards achievement.
 
@@ -72,7 +72,8 @@ optionally adds the character's physical cheer animation and its normal second
 emote line; this is disabled by default.
 
 New unlocks also announce the same message to the current party or raid and
-guild by default. These social announcements never run for login catch-ups,
+guild by default. Guild announcements are disabled for each new character and
+must be enabled in that character's settings. These social announcements never run for login catch-ups,
 version replays, or `/vach replay`. Use `/vach social` or the visible
 Party/Guild setting to toggle them.
 
