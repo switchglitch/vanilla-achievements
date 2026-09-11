@@ -30,6 +30,8 @@ MOCK_CURSOR_Y=272
 MOCK_MAP_CONTINENT=2
 MOCK_MAP_ZONE=1
 MOCK_WESTFALL_EXPLORED=false
+MOCK_ZONE_NAME="Westfall"
+MOCK_ON_TAXI=false
 MOCK_PLAYER_HEALTH=100
 MOCK_PLAYER_MAX_HEALTH=100
 MOCK_PARTY_UNIT_EXISTS={}
@@ -57,7 +59,8 @@ function UnitHealthMax(unit)
 end
 function GetCVar(name) if name=="realmName" then return "TestRealm" end return "" end
 function GetMoney() return MOCK_MONEY end
-function GetRealZoneText() return "Westfall" end
+function GetRealZoneText() return MOCK_ZONE_NAME end
+function UnitOnTaxi(unit) return unit=="player" and MOCK_ON_TAXI end
 function GetZoneText() return "Westfall" end
 function GetMapContinents() return "Kalimdor","Eastern Kingdoms" end
 function GetMapZones(continent)
@@ -530,6 +533,25 @@ db.completed.CRITTER_LOVE_08={at=1}
 db.completed.PEST_CONTROL_08={at=1}
 VA:EvaluateMetaAchievements(true)
 assert(VA:IsComplete("META_SWORD_1000"),"Sword includes new catalog achievements")
+
+-- Taxi zone crossings must not advance the on-foot five-zone achievement.
+VA.expSession.forestRunStarted=nil
+VA.expSession.forestRunZones={}
+VA.expSession.forestRunTaxiTravel=nil
+VA:EnsureDB().completed.EXPLORE_RUN_FOREST=nil
+MOCK_ZONE_NAME="Zone One"; MOCK_ON_TAXI=false; FireExpansion("ZONE_CHANGED_NEW_AREA")
+MOCK_ON_TAXI=true
+MOCK_ZONE_NAME="Zone Two"; FireExpansion("ZONE_CHANGED_NEW_AREA")
+MOCK_ZONE_NAME="Zone Three"; FireExpansion("ZONE_CHANGED_NEW_AREA")
+MOCK_ZONE_NAME="Zone Four"; FireExpansion("ZONE_CHANGED_NEW_AREA")
+MOCK_ON_TAXI=false
+MOCK_ZONE_NAME="Zone Five"; FireExpansion("ZONE_CHANGED_NEW_AREA")
+assert(VA:Count(VA.expSession.forestRunZones)==1,"flight path zones do not count")
+MOCK_ZONE_NAME="Zone Five"; FireExpansion("ZONE_CHANGED_NEW_AREA")
+MOCK_ZONE_NAME="Zone Six"; FireExpansion("ZONE_CHANGED_NEW_AREA")
+MOCK_ZONE_NAME="Zone Seven"; FireExpansion("ZONE_CHANGED_NEW_AREA")
+MOCK_ZONE_NAME="Zone Eight"; FireExpansion("ZONE_CHANGED_NEW_AREA")
+assert(VA:IsComplete("EXPLORE_RUN_FOREST"),"on-foot zones still unlock Run Forrest Run")
 
 print("RESULT passed catalog=216 badges=ok custom_sound=ok toast_queue=ok free_launcher=ok realtime=ok bosses=ok loot=ok deaths=ok critters=ok pests=ok")
 `;

@@ -211,6 +211,16 @@ local function HandleEvent()
         if counter("bestEquippedQuality")>=3 then finish("GEAR_RARE") end
     elseif event=="ZONE_CHANGED_NEW_AREA" or event=="MINIMAP_ZONE_CHANGED" then
         local now=VA:Now(); local zone=GetRealZoneText and GetRealZoneText() or ""; local s=VA.expSession
+        if UnitOnTaxi and UnitOnTaxi("player") then
+            s.forestRunTaxiTravel=true
+            return
+        end
+        -- The landing zone event may arrive just after UnitOnTaxi becomes
+        -- false; suppress that first event so the whole taxi trip is ignored.
+        if s.forestRunTaxiTravel then
+            s.forestRunTaxiTravel=nil
+            return
+        end
         if zone~="" then
             if not s.forestRunStarted or now-s.forestRunStarted>1200 then s.forestRunStarted=now; s.forestRunZones={} end
             if not s.forestRunZones[zone] then
