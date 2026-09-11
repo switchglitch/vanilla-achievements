@@ -481,6 +481,10 @@ VA_DB.version="0.7.6"
 VA_DB.characters[VA:GetCharacterKey()].completed.QUEST_TRIPLE={at=MOCK_NOW}
 VA:EnsureDB()
 assert(not VA:IsComplete("QUEST_TRIPLE"),"upgrade clears legacy quest-trip false positive")
+VA_DB.version="0.9.0"
+VA_DB.characters[VA:GetCharacterKey()].completed.EXPLORE_RUN_FOREST={at=MOCK_NOW}
+VA:EnsureDB()
+assert(not VA:IsComplete("EXPLORE_RUN_FOREST"),"upgrade clears flight-path exploration false positive")
 
 VA.expSession.recentDeaths={}
 VA:EnsureDB().completed.DEATH_DOUBLE=nil

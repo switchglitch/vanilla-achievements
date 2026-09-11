@@ -4,7 +4,7 @@
 VanillaAchievements = VanillaAchievements or {}
 local VA = VanillaAchievements
 
-VA.version = "0.9.1"
+VA.version = "0.9.2"
 VA.schema = 1
 VA.catalog = {}
 VA.byId = {}
@@ -99,6 +99,9 @@ function VA:EnsureDB()
         and (previousVersion == "0.7.5" or previousVersion == "0.7.6" or previousVersion == "0.8.8") then
         db.completed.QUEST_TRIPLE = nil
     end
+    -- 0.9.0 counted flight-path zone crossings for Run, Forrest, Run!!;
+    -- clear that completion once so it can be earned honestly after updating.
+    if previousVersion == "0.9.0" then db.completed.EXPLORE_RUN_FOREST = nil end
     return db
 end
 
